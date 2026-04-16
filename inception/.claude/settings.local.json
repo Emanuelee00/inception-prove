@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec *)",
+      "Bash(curl -kv https://eielmini.42.fr)"
+    ]
+  }
+}

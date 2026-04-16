@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Cosmos — Planets & Constellations</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;font-family:'Segoe UI',Arial,sans-serif;color:#fff;overflow-x:hidden}
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,8,0.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(60,100,200,0.2);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:58px}
+  .nav-logo{font-size:18px;font-weight:700;letter-spacing:3px;color:#88b8ff}
+  .nav-links{display:flex;gap:28px}
+  .nav-links a{color:rgba(150,190,255,0.7);text-decoration:none;font-size:14px;letter-spacing:.5px;transition:color .2s}
+  .nav-links a:hover{color:#88b8ff}
+  /* HERO */
+  #hero{position:relative;height:100vh;min-height:600px;padding-top:58px}
+  #c3d{display:block;width:100%;height:calc(100vh - 58px);min-height:560px;cursor:grab}
+  #c3d:active{cursor:grabbing}
+  #hero-text{position:absolute;top:80px;left:0;right:0;text-align:center;pointer-events:none;z-index:5}
+  #hero-text h1{font-size:clamp(32px,6vw,72px);font-weight:800;letter-spacing:4px;color:#fff;text-shadow:0 0 60px rgba(120,180,255,0.9),0 0 120px rgba(80,140,255,0.4)}
+  #hero-text p{font-size:clamp(13px,2vw,18px);color:#6699cc;margin-top:12px;letter-spacing:2px;text-transform:uppercase}
+  #tip{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(130,170,255,0.45);white-space:nowrap;z-index:5;letter-spacing:.5px}
+  #tip span{margin:0 12px}
+  /* MODAL */
+  #modal{display:none;position:absolute;top:0;left:0;right:0;bottom:0;z-index:20;align-items:center;justify-content:center;background:rgba(0,3,15,0.8);backdrop-filter:blur(4px)}
+  #mbox{background:linear-gradient(135deg,#050d28,#020b20);border:1px solid rgba(100,160,255,0.4);border-radius:20px;padding:36px 40px;max-width:360px;width:90%;text-align:center}
+  #mbox h2{font-size:26px;font-weight:700;color:#fff;margin-bottom:4px}
+  #mbox .sub{font-size:12px;color:#4477aa;margin-bottom:18px;letter-spacing:1px;text-transform:uppercase}
+  #mbox .fact{font-size:15px;color:#b0d0ff;line-height:1.75;margin-bottom:16px}
+  #mbox .dist{font-size:12px;color:#334d77;margin-bottom:22px;letter-spacing:.5px}
+  #mclose{background:rgba(60,120,255,0.12);border:1px solid rgba(100,160,255,0.35);color:#88b8ff;padding:9px 28px;border-radius:30px;cursor:pointer;font-size:14px;letter-spacing:.5px;transition:background .2s}
+  #mclose:hover{background:rgba(60,120,255,0.28)}
+  /* SECTIONS */
+  .section{padding:80px 24px}
+  .section.dark{background:#020810}
+  .section.light{background:#000}
+  .sec-wrap{max-width:960px;margin:0 auto}
+  .sec-title{text-align:center;font-size:clamp(18px,3vw,28px);font-weight:700;color:#88b8ff;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+  .sec-divider{width:50px;height:1px;background:rgba(100,160,255,0.35);margin:14px auto 12px}
+  .sec-sub{text-align:center;font-size:14px;color:#2e4a72;margin-bottom:44px;letter-spacing:.5px}
+  /* PLANET GRID */
+  .planet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+  .pcard{background:#050d28;border:1px solid rgba(60,100,200,0.2);border-radius:16px;padding:22px 16px;text-align:center;cursor:pointer;transition:transform .22s,border-color .22s,background .22s}
+  .pcard:hover{transform:translateY(-6px);border-color:rgba(100,160,255,0.55);background:#091530}
+  .pball{width:52px;height:52px;border-radius:50%;margin:0 auto 14px}
+  .pcard h3{font-size:15px;font-weight:600;color:#cce0ff;margin-bottom:5px}
+  .pcard p{font-size:12px;color:#2e4a72;line-height:1.5}
+  /* CONSTELLATION GRID */
+  .const-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .ccard{background:#050d28;border:1px solid rgba(60,100,200,0.15);border-radius:16px;padding:22px 20px;transition:border-color .22s}
+  .ccard:hover{border-color:rgba(80,130,220,0.4)}
+  .ccard h3{font-size:15px;color:#88b8ff;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .cstar{display:inline-block;width:6px;height:6px;background:#99ccff;border-radius:50%;flex-shrink:0}
+  .ccard p{font-size:13px;color:#2e4a72;line-height:1.7}
+  /* FACT STRIP */
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(40,70,140,0.2);border:1px solid rgba(40,70,140,0.2);border-radius:14px;overflow:hidden;margin:60px auto 0;max-width:900px}
+  .fact-item{padding:28px 20px;background:#030c22;text-align:center}
+  .fact-num{font-size:28px;font-weight:700;color:#88b8ff;display:block;margin-bottom:6px}
+  .fact-label{font-size:12px;color:#2e4a72;letter-spacing:.5px}
+  /* FOOTER */
+  footer{background:#000;border-top:1px solid rgba(40,70,140,0.25);padding:34px 24px;text-align:center}
+  footer p{font-size:13px;color:#1e3a5a;letter-spacing:.5px}
+  footer span{color:#2a5080}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">&#9733; COSMOS</div>
+  <div class="nav-links">
+    <a href="#planets">Planets</a>
+    <a href="#constellations">Constellations</a>
+    <a href="#facts">Facts</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <div id="hero-text">
+    <h1>THE COSMOS</h1>
+    <p>Explore our solar system &amp; constellations</p>
+  </div>
+  <canvas id="c3d"></canvas>
+  <div id="tip">
+    <span>&#8635; Drag to rotate</span>
+    <span>&#128269; Scroll to zoom</span>
+    <span>&#9654; Click a planet to explore</span>
+  </div>
+  <div id="modal">
+    <div id="mbox">
+      <h2 id="m-name"></h2>
+      <div class="sub" id="m-type"></div>
+      <div class="fact" id="m-fact"></div>
+      <div class="dist" id="m-dist"></div>
+      <button id="mclose">Close</button>
+    </div>
+  </div>
+</section>
+
+<section class="section dark" id="planets">
+  <div class="sec-wrap">
+    <div class="sec-title">The Planets</div>
+    <div class="sec-divider"></div>
+    <div class="sec-sub">Click any planet to reveal its secrets</div>
+    <div class="planet-grid">
+      <div class="pcard" onclick="showPlanetCard(0)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#fff7cc,#ffaa00,#cc5500);box-shadow:0 0 24px rgba(255,160,0,0.65)"></div><h3>The Sun</h3><p>Our star, 1.4M km wide</p></div>
+      <div class="pcard" onclick="showPlanetCard(1)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#d0c0a8,#9a8a78,#554540)"></div><h3>Mercury</h3><p>Fastest orbit, 88 days</p></div>
+      <div class="pcard" onclick="showPlanetCard(2)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#f5e8a0,#e0b860,#a06820)"></div><h3>Venus</h3><p>Hottest planet, 460&#176;C</p></div>
+      <div class="pcard" onclick="showPlanetCard(3)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#88bbff,#2277cc,#113388)"></div><h3>Earth</h3><p>Our blue marble home</p></div>
+      <div class="pcard" onclick="showPlanetCard(4)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#ff8866,#cc4422,#661100)"></div><h3>Mars</h3><p>The red planet</p></div>
+      <div class="pcard" onclick="showPlanetCard(5)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#e8d8a8,#c8a86e,#886030)"></div><h3>Jupiter</h3><p>Largest planet, 11x Earth</p></div>
+      <div class="pcard" onclick="showPlanetCard(6)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#f0e0a0,#e0c88a,#906820);box-shadow:0 0 0 7px rgba(200,160,80,0.15),0 0 0 13px rgba(200,160,80,0.07)"></div><h3>Saturn</h3><p>Iconic ringed giant</p></div>
+      <div class="pcard" onclick="showPlanetCard(7)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#aaddee,#7ab8cc,#226688)"></div><h3>Uranus</h3><p>Spins on its side</p></div>
+      <div class="pcard" onclick="showPlanetCard(8)"><div class="pball" style="background:radial-gradient(circle at 35% 35%,#6688ff,#3355cc,#111e66)"></div><h3>Neptune</h3><p>Windiest planet</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section light" id="constellations">
+  <div class="sec-wrap">
+    <div class="sec-title">Constellations</div>
+    <div class="sec-divider"></div>
+    <div class="sec-sub">Ancient star patterns that guide us through the night sky</div>
+    <div class="const-grid">
+      <div class="ccard"><h3><span class="cstar"></span>Orion</h3><p>The Hunter — one of the most recognizable patterns in the night sky. Visible from both hemispheres during winter months.</p></div>
+      <div class="ccard"><h3><span class="cstar"></span>Ursa Major</h3><p>The Great Bear — contains the famous Big Dipper asterism, whose two outer stars point directly toward Polaris, the North Star.</p></div>
+      <div class="ccard"><h3><span class="cstar"></span>Cassiopeia</h3><p>The Queen — a distinctive W-shape that circles the North Celestial Pole and is visible year-round from northern latitudes.</p></div>
+      <div class="ccard"><h3><span class="cstar"></span>Scorpius</h3><p>The Scorpion — a brilliant summer constellation anchored by the red supergiant Antares, meaning "rival of Mars."</p></div>
+      <div class="ccard"><h3><span class="cstar"></span>Leo</h3><p>The Lion — a spring constellation featuring the bright star Regulus at its heart, lying almost exactly on the ecliptic.</p></div>
+      <div class="ccard"><h3><span class="cstar"></span>Southern Cross</h3><p>Crux — the smallest constellation by area, used for navigation in the Southern Hemisphere for centuries by sailors.</p></div>
+    </div>
+
+    <div class="facts" id="facts">
+      <div class="fact-item"><span class="fact-num">8</span><span class="fact-label">Planets in our solar system</span></div>
+      <div class="fact-item"><span class="fact-num">88</span><span class="fact-label">Official constellations</span></div>
+      <div class="fact-item"><span class="fact-num">4.6B</span><span class="fact-label">Years the Sun has shone</span></div>
+      <div class="fact-item"><span class="fact-num">2,000+</span><span class="fact-label">Stars visible to the naked eye</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>THE COSMOS &nbsp;&#9733;&nbsp; An interactive journey through our solar system &nbsp;&#9733;&nbsp; Drag &bull; Zoom &bull; Discover</p>
+  <p style="margin-top:10px;font-size:11px;color:#122030;">Built with Three.js &nbsp;|&nbsp; &copy; 2026</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+const planetInfo=[
+  {name:'The Sun',type:'Our Star',fact:'The Sun contains 99.86% of all mass in the solar system. Its core reaches 15 million degrees Celsius and generates energy through nuclear fusion, converting 600 million tonnes of hydrogen every second.',dist:'0 km — center of our solar system'},
+  {name:'Mercury',type:'Terrestrial Planet',fact:'Mercury completes an orbit every 88 days but rotates so slowly that a single day lasts 59 Earth days. Surface temperatures swing from -180°C at night to 430°C during the day.',dist:'57.9 million km from the Sun'},
+  {name:'Venus',type:'Terrestrial Planet',fact:'Venus is the hottest planet at 460°C due to a thick CO₂ atmosphere creating a runaway greenhouse effect. It rotates backwards — the Sun rises in the west and sets in the east.',dist:'108.2 million km from the Sun'},
+  {name:'Earth',type:'Terrestrial Planet',fact:'Earth is the only known planet harboring life. Its protective magnetic field, liquid water oceans, and oxygen-rich atmosphere make it uniquely suited to complex life forms.',dist:'149.6 million km from the Sun'},
+  {name:'Mars',type:'Terrestrial Planet',fact:'Mars hosts Olympus Mons, the tallest volcano in the solar system at 22 km high. Liquid water once flowed across its surface, and scientists are searching for signs of ancient microbial life.',dist:'227.9 million km from the Sun'},
+  {name:'Jupiter',type:'Gas Giant',fact:'Jupiter is so massive that 1,300 Earths could fit inside it. Its Great Red Spot is a storm that has raged continuously for over 350 years, wider than the entire planet Earth.',dist:'778.5 million km from the Sun'},
+  {name:'Saturn',type:'Gas Giant',fact:"Saturn's magnificent rings span 280,000 km yet are only about 1 km thick. The planet is so light that it would float on water — it's the least dense planet in the solar system.",dist:'1.43 billion km from the Sun'},
+  {name:'Uranus',type:'Ice Giant',fact:'Uranus rotates on a 98° axial tilt — essentially rolling on its side as it orbits the Sun. Its striking blue-green color comes from methane gas absorbing red light in its atmosphere.',dist:'2.87 billion km from the Sun'},
+  {name:'Neptune',type:'Ice Giant',fact:'Neptune has the strongest winds in the solar system, reaching 2,100 km/h. It was the first planet predicted mathematically before being observed — its existence was calculated from gravitational anomalies.',dist:'4.5 billion km from the Sun'}
+];
+
+function showPlanetCard(i){
+  const d=planetInfo[i];
+  document.getElementById('m-name').textContent=d.name;
+  document.getElementById('m-type').textContent=d.type;
+  document.getElementById('m-fact').textContent=d.fact;
+  document.getElementById('m-dist').textContent=d.dist;
+  const modal=document.getElementById('modal');
+  modal.style.display='flex';
+}
+document.getElementById('mclose').onclick=function(){document.getElementById('modal').style.display='none';};
+document.getElementById('modal').onclick=function(e){if(e.target===this)this.style.display='none';};
+
+const canvas=document.getElementById('c3d');
+function resize(){
+  const W=window.innerWidth;
+  const H=Math.max(560,window.innerHeight-58);
+  canvas.width=W;canvas.height=H;
+  renderer.setSize(W,H);
+  camera.aspect=W/H;
+  camera.updateProjectionMatrix();
+}
+
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,window.innerWidth/Math.max(560,window.innerHeight-58),0.1,2000);
+camera.position.set(0,50,130);
+camera.lookAt(0,0,0);
+
+resize();
+window.addEventListener('resize',resize);
+
+const sp=[];
+for(let i=0;i<2800;i++)sp.push((Math.random()-.5)*1800,(Math.random()-.5)*1800,(Math.random()-.5)*1800);
+const sGeo=new THREE.BufferGeometry();
+sGeo.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+scene.add(new THREE.Points(sGeo,new THREE.PointsMaterial({color:0xffffff,size:0.85,transparent:true,opacity:1})));
+
+scene.add(new THREE.AmbientLight(0x334466,1.3));
+const sunLight=new THREE.PointLight(0xfff0cc,7,450);
+scene.add(sunLight);
+const fill=new THREE.DirectionalLight(0x4466bb,0.9);
+fill.position.set(-100,50,-100);
+scene.add(fill);
+
+const pd=[
+  {r:8,d:0,color:0xffcc33,emissive:0xff8800,ei:2.2,speed:0,rings:false,idx:0},
+  {r:1.3,d:18,color:0xb0a090,emissive:0x442211,ei:0.25,speed:0.047,rings:false,idx:1},
+  {r:2.3,d:27,color:0xeedd88,emissive:0x553300,ei:0.3,speed:0.035,rings:false,idx:2},
+  {r:2.6,d:38,color:0x3388ee,emissive:0x001155,ei:0.25,speed:0.029,rings:false,idx:3},
+  {r:1.9,d:50,color:0xdd5533,emissive:0x441100,ei:0.25,speed:0.024,rings:false,idx:4},
+  {r:5.8,d:72,color:0xddbb88,emissive:0x332200,ei:0.2,speed:0.013,rings:false,idx:5},
+  {r:4.5,d:96,color:0xeedd99,emissive:0x332200,ei:0.2,speed:0.009,rings:true,idx:6},
+  {r:3.2,d:120,color:0x88ccdd,emissive:0x002233,ei:0.2,speed:0.006,rings:false,idx:7},
+  {r:3.1,d:142,color:0x4466dd,emissive:0x001155,ei:0.2,speed:0.005,rings:false,idx:8}
+];
+
+const meshes=[];
+const angles=pd.map(()=>Math.random()*Math.PI*2);
+
+pd.forEach(function(p){
+  var geo=new THREE.SphereGeometry(p.r,48,48);
+  var mat=new THREE.MeshStandardMaterial({color:p.color,emissive:p.emissive,emissiveIntensity:p.ei,roughness:0.5,metalness:0.1});
+  var mesh=new THREE.Mesh(geo,mat);
+  mesh.userData={idx:p.idx,dist:p.d,speed:p.speed,tScale:1};
+  if(p.d>0){
+    var og=new THREE.RingGeometry(p.d-.12,p.d+.12,128);
+    var om=new THREE.Mesh(og,new THREE.MeshBasicMaterial({color:0x4466bb,side:THREE.DoubleSide,transparent:true,opacity:0.38}));
+    om.rotation.x=Math.PI/2;
+    scene.add(om);
+  }
+  if(p.rings){
+    var rg=new THREE.RingGeometry(p.r*1.4,p.r*2.5,80);
+    var ring=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xddcc88,side:THREE.DoubleSide,transparent:true,opacity:0.78}));
+    ring.rotation.x=1.1;
+    mesh.add(ring);
+  }
+  if(p.idx===3){
+    var mg=new THREE.SphereGeometry(.65,16,16);
+    var mm=new THREE.MeshStandardMaterial({color:0xcccccc,roughness:.9,emissive:0x333333,emissiveIntensity:.3});
+    var moon=new THREE.Mesh(mg,mm);
+    mesh.userData.moon=moon;
+    mesh.add(moon);
+  }
+  scene.add(mesh);
+  meshes.push(mesh);
+});
+
+var lm=new THREE.LineBasicMaterial({color:0x4499cc,transparent:true,opacity:0.6});
+var cLines=[
+  [[-60,18,-80],[-55,24,-80]],[[-55,24,-80],[-50,14,-80]],[[-50,14,-80],[-45,9,-80]],
+  [[-55,24,-80],[-50,30,-80]],[[-50,30,-80],[-45,35,-80]],[[-45,9,-80],[-40,4,-80]],
+  [[50,40,-100],[58,46,-100]],[[58,46,-100],[66,42,-100]],[[66,42,-100],[72,36,-100]],
+  [[50,40,-100],[52,28,-100]],[[52,28,-100],[60,26,-100]],[[66,42,-100],[70,52,-100]],
+  [[20,-28,-90],[20,-18,-90]],[[14,-23,-90],[26,-23,-90]],[[20,-18,-90],[24,-14,-90]],
+  [[-20,50,-110],[-12,44,-110]],[[-12,44,-110],[-4,48,-110]],[[-4,48,-110],[4,42,-110]]
+];
+var csp=[];
+cLines.forEach(function(seg){
+  var g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(seg[0][0],seg[0][1],seg[0][2]),new THREE.Vector3(seg[1][0],seg[1][1],seg[1][2])]);
+  scene.add(new THREE.Line(g,lm));
+  csp.push(seg[0][0],seg[0][1],seg[0][2],seg[1][0],seg[1][1],seg[1][2]);
+});
+var csg=new THREE.BufferGeometry();
+csg.setAttribute('position',new THREE.Float32BufferAttribute(csp,3));
+scene.add(new THREE.Points(csg,new THREE.PointsMaterial({color:0xaaddff,size:2.8,transparent:true,opacity:1})));
+
+var raycaster=new THREE.Raycaster();
+var mouse=new THREE.Vector2();
+var hovered=null,dragging=false,mx=0,my=0;
+var rotY=0,rotX=0,tRotY=0,tRotX=0,zoom=130,tZoom=130;
+
+canvas.addEventListener('mousemove',function(e){
+  var r=canvas.getBoundingClientRect();
+  mouse.x=((e.clientX-r.left)/r.width)*2-1;
+  mouse.y=-((e.clientY-r.top)/r.height)*2+1;
+  if(dragging){tRotY+=(e.clientX-mx)*.005;tRotX+=(e.clientY-my)*.003;tRotX=Math.max(-.7,Math.min(.7,tRotX));mx=e.clientX;my=e.clientY;}
+  raycaster.setFromCamera(mouse,camera);
+  var hits=raycaster.intersectObjects(meshes);
+  if(hits.length){
+    var h=hits[0].object;
+    if(hovered!==h){if(hovered)hovered.userData.tScale=1;hovered=h;h.userData.tScale=h.userData.idx===0?1.1:1.5;}
+    canvas.style.cursor='pointer';
+  } else {
+    if(hovered){hovered.userData.tScale=1;hovered=null;}
+    canvas.style.cursor=dragging?'grabbing':'grab';
+  }
+});
+canvas.addEventListener('mousedown',function(e){dragging=true;mx=e.clientX;my=e.clientY;});
+canvas.addEventListener('mouseup',function(){dragging=false;});
+canvas.addEventListener('mouseleave',function(){dragging=false;if(hovered){hovered.userData.tScale=1;hovered=null;}});
+canvas.addEventListener('click',function(e){
+  var r=canvas.getBoundingClientRect();
+  mouse.x=((e.clientX-r.left)/r.width)*2-1;
+  mouse.y=-((e.clientY-r.top)/r.height)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  var hits=raycaster.intersectObjects(meshes);
+  if(hits.length)showPlanetCard(hits[0].object.userData.idx);
+});
+canvas.addEventListener('wheel',function(e){e.preventDefault();tZoom=Math.max(55,Math.min(230,tZoom+e.deltaY*.14));},{passive:false});
+
+var t=0;
+function animate(){
+  requestAnimationFrame(animate);
+  t+=.008;
+  rotY+=(tRotY-rotY)*.07;rotX+=(tRotX-rotX)*.07;zoom+=(tZoom-zoom)*.07;
+  camera.position.x=Math.sin(rotY)*zoom*Math.cos(rotX);
+  camera.position.y=Math.sin(rotX)*zoom;
+  camera.position.z=Math.cos(rotY)*zoom*Math.cos(rotX);
+  camera.lookAt(0,0,0);
+  meshes.forEach(function(m,i){
+    var p=pd[i];
+    if(p.d>0){angles[i]+=p.speed*.012;m.position.x=Math.cos(angles[i])*p.d;m.position.z=Math.sin(angles[i])*p.d;m.position.y=Math.sin(angles[i]*.5)*p.d*.05;}
+    m.rotation.y+=.004+p.speed*.08;
+    var ts=m.userData.tScale||1;
+    m.scale.setScalar(m.scale.x+(ts-m.scale.x)*.12);
+    if(m.userData.moon){m.userData.moon.position.x=Math.cos(t*3)*p.r*2.8;m.userData.moon.position.z=Math.sin(t*3)*p.r*2.8;}
+  });
+  meshes[0].material.emissiveIntensity=1.9+Math.sin(t*2)*.45;
+  renderer.render(scene,camera);
+}
+animate();
+</script>
+</body>
+</html>
