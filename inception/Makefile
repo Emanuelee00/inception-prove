@@ -1,6 +1,6 @@
-WP_DIR		= /home/eielmini/data/wordpress
-DB_DIR		= /home/eielmini/data/mariadb
-COMPOSE		= docker-compose -f srcs/docker-compose.yml
+WP_DIR		= $(HOME)/data/wordpress
+DB_DIR		= $(HOME)/data/mariadb
+COMPOSE		= docker compose -f srcs/docker-compose.yml
 
 all: up
 

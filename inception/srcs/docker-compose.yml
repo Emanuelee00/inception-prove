@@ -9,9 +9,6 @@ services:
     networks:
       - inception
     restart: always
-    secrets:
-      - db_password
-      - db_root_password
 
   wordpress:
     build: ./requirements/wordpress
@@ -25,10 +22,6 @@ services:
     networks:
       - inception
     restart: always
-    secrets:
-      - db_password
-      - db_root_password
-      - db_user
 
   nginx:
     build: ./requirements/nginx
@@ -41,30 +34,30 @@ services:
       - wp_data:/var/www/html
     depends_on:
       - wordpress
+      - react
     networks:
       - inception
     restart: always
 
-secrets:
-  db_password:
-    file: ../secrets/db_password.txt
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  db_user:
-    file: ../secrets/db_user.txt
+  react:
+    build: ./requirements/react
+    container_name: react
+    networks:
+      - inception
+    restart: always
 
 volumes:
   db_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/eielmini/data/mariadb
+      device: ${HOME}/data/mariadb
       o: bind
   wp_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/eielmini/data/wordpress
+      device: ${HOME}/data/wordpress
       o: bind
 
 networks:
