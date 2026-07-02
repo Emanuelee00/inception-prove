@@ -1,61 +1,31 @@
-# Paths for persistent volumes
-
-WP_DIR      = /home/eielmini/data/wordpress
-DB_DIR      = /home/eielmini/data/mariadb
-
-# Docker Compose command
-
-COMPOSE     = docker-compose -f srcs/docker-compose.yml
-
-# Default target
+WP_DIR		= $(HOME)/data/wordpress
+DB_DIR		= $(HOME)/data/mariadb
+PACMAN_DIR	= $(HOME)/data/pacman
+COMPOSE		= docker compose -f srcs/docker-compose.yml
 
 all: up
 
-# Create volume directories if they don't exist
-
 init:
-	mkdir -p $(WP_DIR) $(DB_DIR)
-
-# Build images (only when needed)
-
-build:
-	$(COMPOSE) build
-
-# Start containers (no rebuild for speed)
+	mkdir -p $(WP_DIR) $(DB_DIR) $(PACMAN_DIR)
 
 up: init
-	$(COMPOSE) up -d
-
-# Stop containers
+	$(COMPOSE) up --build -d
 
 down:
 	$(COMPOSE) down
 
-# Show logs in real time
-
 logs:
 	$(COMPOSE) logs -f
 
-# Restart containers
-
-restart: down up
-
-# Stop containers (keep images and volumes)
-
 clean:
 	$(COMPOSE) down
-
-# Full cleanup (removes everything: volumes, images, cache)
+	docker system prune -af
 
 fclean:
 	$(COMPOSE) down -v
-	sudo rm -rf $(WP_DIR)/* $(DB_DIR)/*
+	sudo rm -rf $(WP_DIR)/* $(DB_DIR)/* $(PACMAN_DIR)/*
 	docker system prune -af
 
-# Full rebuild from scratch
+re: fclean all
 
-re: fclean build up
-
-# Declare phony targets
-
-.PHONY: all init build up down logs restart clean fclean re
+.PHONY: all init up down logs clean fclean re

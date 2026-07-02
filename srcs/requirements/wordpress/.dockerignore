@@ -1,6 +1,6 @@
 # Ignore secrets and local configuration files
 ../../secrets
-../../.env
+<!-- ../../.env -->
 
 # Ignore temporary files, Python cache, and editor swap files
 *.log

@@ -1,6 +1,7 @@
 services:
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     env_file:
       - .env
@@ -9,12 +10,10 @@ services:
     networks:
       - inception
     restart: always
-    secrets:
-      - db_password
-      - db_root_password
 
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     env_file:
       - .env
@@ -25,13 +24,10 @@ services:
     networks:
       - inception
     restart: always
-    secrets:
-      - db_password
-      - db_root_password
-      - db_user
 
   nginx:
     build: ./requirements/nginx
+    image: nginx
     container_name: nginx
     env_file:
       - .env
@@ -41,30 +37,48 @@ services:
       - wp_data:/var/www/html
     depends_on:
       - wordpress
+      - react
+      - pacman
     networks:
       - inception
     restart: always
 
-secrets:
-  db_password:
-    file: ../secrets/db_password.txt
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  db_user:
-    file: ../secrets/db_user.txt
+  react:
+    build: ./requirements/react
+    image: react
+    container_name: react
+    networks:
+      - inception
+    restart: always
+
+  pacman:
+    build: ./requirements/pacman
+    image: pacman
+    container_name: pacman
+    volumes:
+      - pacman_data:/root/.local/share/pacman_game
+    networks:
+      - inception
+    restart: always
 
 volumes:
   db_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/eielmini/data/mariadb
+      device: ${HOME}/data/mariadb
       o: bind
   wp_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/eielmini/data/wordpress
+      device: ${HOME}/data/wordpress
+      o: bind
+  pacman_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOME}/data/pacman
       o: bind
 
 networks:

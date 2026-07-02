@@ -1,7 +1,8 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx openssl\
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nginx openssl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/nginx/ssl
 

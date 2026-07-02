@@ -1,53 +1,38 @@
 #!/bin/bash
 set -e
 
-export MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-export MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
-export MYSQL_USER=${MYSQL_USER}
-export MYSQL_DATABASE=${MYSQL_DATABASE}
-# export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-
-echo "=== Starting WordPress setup ==="
-echo "Waiting for MariaDB..."
-
-mkdir -p /var/www/html
-chmod -R 755 /var/www/html
-chown -R www-data:www-data /var/www/html
-
-while ! mysqladmin ping -h mariadb -u ${MYSQL_USER} -p${MYSQL_PASSWORD} --silent 2>/dev/null; do
+# Wait for MariaDB to accept connections
+while ! (echo > /dev/tcp/mariadb/3306) 2>/dev/null; do
     echo "Still waiting for MariaDB..."
     sleep 3
 done
-
 echo "MariaDB is ready!"
 
-
+mkdir -p /var/www/html
 cd /var/www/html
 
-if [ ! -f wp-config.php ]; then
-    echo "Installing WordPress..."
-    
-    find /var/www/html -mindepth 1 -delete
-    
-    wget https://wordpress.org/latest.tar.gz
-    tar -xzf latest.tar.gz
-    mv wordpress/* .
-    rm -rf wordpress latest.tar.gz
-    
-    cp wp-config-sample.php wp-config.php
-    
-    sed -i "s/database_name_here/${MYSQL_DATABASE}/g" wp-config.php
-    sed -i "s/username_here/${MYSQL_USER}/g" wp-config.php
-    sed -i "s/password_here/${MYSQL_PASSWORD}/g" wp-config.php
-    sed -i "s/localhost/mariadb/g" wp-config.php
-    echo "WordPress installation complete!"
-else
-    echo "WordPress already installed"
-
-
+if [ ! -f wp-load.php ]; then
+    wp --allow-root core download
 fi
 
-mkdir -p /run/php
+if [ ! -f wp-config.php ]; then
+    wp --allow-root config create --dbname=$WP_DATABASE \
+        --dbuser=$WP_USER \
+        --dbpass=$WP_PASSWORD \
+        --dbhost=$WP_DB_HOST
+fi
 
-echo "Starting PHP-FPM..."
+if ! wp --allow-root core is-installed 2>/dev/null; then
+    wp --allow-root core install --url=$DOMAIN_NAME \
+        --title="Inception" \
+        --admin_user=$WP_ADMIN \
+        --admin_password=$WP_ADMIN_PASSWORD \
+        --admin_email=$WP_ADMIN_EMAIL
+
+    wp --allow-root user create toto toto@code.42.tech.fr --role=editor --user_pass=$WP_USER_PASSWORD
+fi
+
+cp /cosmos-landing.html /var/www/html/cosmos-landing.html
+chown -R www-data:www-data /var/www/html
+
 exec php-fpm8.2 -F
