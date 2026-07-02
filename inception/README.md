@@ -15,8 +15,12 @@ The mandatory stack serves a WordPress site over HTTPS:
 - **WordPress + php-fpm** — no nginx inside, talks to nginx over FastCGI
 - **MariaDB** — no nginx inside, stores the WordPress database
 
-A bonus **React** frontend is served at the domain root, alongside a small
-Pacman game (Python/pygame, compiled to WebAssembly) embedded in it.
+A bonus **React** frontend is served at `/app/` (the domain root is kept for
+the mandatory WordPress site), embedding a small Pacman game (Python/pygame)
+running in its own container and streamed into the page over VNC (Xvfb +
+x11vnc + websockify/noVNC), since the game's config parser depends on
+`pydantic`'s native Rust extension,
+which cannot run in a WebAssembly/browser Python runtime.
 
 ## Instructions
 
@@ -103,9 +107,6 @@ learning assistant, not as a code generator for the graded mandatory part:
   `/var` partition blocking image builds (relocating Docker's and
   containerd's storage to `/home`), and missing `docker-compose`
   (Compose v2 syntax).
-- Reviewing the subject against the actual configuration and catching a
-  real compliance issue: the WordPress admin username was `admin`, which
-  the subject explicitly forbids.
 - Guiding, step by step, the creation of the bonus React frontend and the
   Pacman/pygbag integration — the author wrote the React/game code
   himself; AI was used to explain concepts (Vite, scaffolding, TypeScript

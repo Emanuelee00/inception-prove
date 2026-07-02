@@ -4,10 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>app</title>
+    <title>Inception</title>
   </head>
   <body>
+    <!-- empty on purpose: main.tsx finds this div and fills it with <App /> -->
     <div id="root"></div>
+    <!-- type="module" enables ES import/export syntax; this is the only
+         <script> the page needs, Vite bundles everything App imports into it -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

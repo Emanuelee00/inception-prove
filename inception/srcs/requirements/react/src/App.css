@@ -1,0 +1,124 @@
+/* Overall page: a centered column, all sections stacked vertically */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 64px;
+}
+
+/* Title + tagline at the top, with a soft purple glow behind it
+   (radial-gradient fading to transparent) instead of a flat background */
+.hero {
+  padding: 72px 0 32px;
+  width: 100%;
+  text-align: center;
+  background: radial-gradient(
+    ellipse 800px 300px at 50% 0%,
+    var(--accent-bg),
+    transparent 70%
+  );
+  border-radius: 0 0 24px 24px;
+}
+
+.tagline {
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--text);
+  font-size: 19px;
+}
+
+/* "About this project" text block, in a card so it stands out from the
+   plain background instead of floating as bare text */
+.about {
+  max-width: 720px;
+  text-align: left;
+  margin-top: 48px;
+  padding: 28px 32px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.about h2 {
+  text-align: center;
+}
+
+.about p {
+  margin-top: 16px;
+  line-height: 160%;
+}
+
+.about p + p {
+  /* extra gap only between two consecutive <p>, not after the heading */
+  margin-top: 12px;
+}
+
+/* Tech stack "pills": small rounded badges, one per technology,
+   colored with the same accent purple used elsewhere on the page */
+.stack {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px 0 0;
+  padding: 0;
+}
+
+.stack li {
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.stack li:hover {
+  transform: translateY(-2px);
+  background: var(--accent-border);
+}
+
+.game {
+  margin-top: 56px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game h2 {
+  background: linear-gradient(90deg, var(--accent), var(--text-h));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.game-hint {
+  color: var(--text);
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* "Arcade cabinet" frame around the VNC iframe: dark background,
+   accent-colored border + glow (box-shadow) so it reads as its own
+   distinct element, not just an embedded rectangle */
+.game-frame {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #0b0b12;
+  border: 1px solid var(--accent-border);
+  box-shadow: var(--shadow), 0 0 40px var(--accent-bg);
+  max-width: 100%;
+  overflow: auto;
+}
+
+.game-frame iframe {
+  display: block;
+  border: none;
+  border-radius: 6px;
+  max-width: 100%;
+}

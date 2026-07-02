@@ -69,7 +69,8 @@ docker compose -f srcs/docker-compose.yml exec wordpress bash
 docker volume ls                                          # list volumes
 ```
 
-Service names: `nginx`, `wordpress`, `mariadb` (and `react` for the bonus).
+Service names: `nginx`, `wordpress`, `mariadb` (and `react`, `pacman` for the
+bonus).
 
 ## Scaffolding the React app (bonus, one-time, already done)
 
@@ -97,18 +98,53 @@ without anyone re-running that step by hand.
 
 ## Where data is stored / how it persists
 
-Two named volumes, both bind-mounted to the host (required by the subject):
+Two named volumes are required by the subject (mandatory part), both
+bind-mounted to the host; a third one persists the bonus pacman container's
+highscores the same way:
 
-| Volume    | Container path      | Host path                  |
-|-----------|----------------------|-----------------------------|
-| `db_data` | `/var/lib/mysql`     | `$HOME/data/mariadb`        |
-| `wp_data` | `/var/www/html`      | `$HOME/data/wordpress`      |
+| Volume         | Container path                          | Host path                  |
+|----------------|-------------------------------------------|-----------------------------|
+| `db_data`      | `/var/lib/mysql`                          | `$HOME/data/mariadb`        |
+| `wp_data`      | `/var/www/html`                           | `$HOME/data/wordpress`      |
+| `pacman_data`  | `/root/.local/share/pacman_game`          | `$HOME/data/pacman`         |
 
 Because they're bind mounts, data survives `docker compose down` and even
 `make clean` (image/container removal) — only `make fclean`/`make re` wipe
 them on purpose, by removing the volumes and the underlying host
 directories.
 
-The React/Pacman bonus container has no persistent state: it's built as
-static assets (Vite build output) served by nginx and rebuilt from source on
-every `--build`.
+The React bonus container has no persistent state: it's built as static
+assets (Vite build output) served by nginx and rebuilt from source on every
+`--build`.
+
+## The pacman bonus container
+
+`srcs/requirements/pacman/` clones
+[`Emanuelee00/Pacman`](https://github.com/Emanuelee00/Pacman) at build time
+(`git clone` in the Dockerfile — always the latest `main`, no local copy of
+the game lives in this repo) and runs it as a normal desktop pygame app
+(only change made to the upstream game: the main loop was made `async`, see
+its own repo history — not required for this VNC approach, but harmless),
+inside a headless X setup:
+
+- `Xvfb` — virtual display (`:99`), since there's no real monitor
+- `x11vnc` — shares that display over VNC (port 5900, internal only)
+- `websockify --web=/usr/share/novnc` — bridges VNC to WebSocket and serves
+  the noVNC static web client, on port 6080 (the only port other
+  containers/nginx can reach)
+- the game itself, run via `uv run python3 pac-man.py`, foreground process
+  (PID 1) so a crash restarts the container (`restart: always`)
+
+The main nginx reverse-proxies `/pacman/` to `pacman:6080` with WebSocket
+upgrade headers, and the React app embeds
+`/pacman/vnc_lite.html?autoconnect=true` in an `<iframe>`.
+
+**Why streaming instead of compiling the game to WebAssembly** (like the
+React app's static build): the game's config parser (`src/pacman/parser.py`)
+uses `pydantic`, whose `pydantic-core` is a native Rust extension with no
+WASM build — it cannot run in a browser Python runtime (e.g. pygbag). The
+game has no `.env` variables, and its own Dockerfile always pulls the latest
+`main` from GitHub, so `make re` is enough to pick up any change pushed to
+that repo. Its only state — the highscores file
+(`~/.local/share/pacman_game/highscores.json`) — is persisted via the
+`pacman_data` volume (see the table above), so scores survive rebuilds.

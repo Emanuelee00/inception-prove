@@ -2,10 +2,13 @@
 
 ## What services does the stack provide?
 
-- **Website** — a WordPress site, reachable at `https://eielmini.42.fr`.
+- **Website** — a WordPress site, reachable at `https://eielmini.42.fr`
+  (kept at the domain root, as required by the subject).
 - **Admin panel** — WordPress dashboard, to manage posts/pages/users.
-- **React landing page** — served at the domain root (bonus), including a
-  Pacman game to play in the browser.
+- **React bonus page** — served at `https://eielmini.42.fr/app/`, not the
+  domain root, so it doesn't shadow the mandatory WordPress site.
+- **Pacman game** — a Python/pygame game running in its own container and
+  streamed into the React page via VNC (bonus, embedded in `/app/`).
 
 Everything is served over HTTPS (TLSv1.2/1.3) through a single nginx
 container; there is no other entrypoint.
@@ -26,6 +29,7 @@ make logs    # follow the logs of all containers
 
 - Website: `https://eielmini.42.fr/`
 - WordPress admin panel: `https://eielmini.42.fr/wp-admin/`
+- Bonus page (React + Pacman): `https://eielmini.42.fr/app/`
 
 The browser will warn about the certificate because it is self-signed
 (generated locally by the nginx container) — this is expected, accept it to
@@ -59,7 +63,8 @@ There is no default/example password — if `srcs/.env` is missing, see
 docker compose -f srcs/docker-compose.yml ps
 ```
 
-All three (or four, with the bonus) services should show as `Up`. You can
+All five services (`mariadb`, `wordpress`, `nginx`, `react`, `pacman`) should
+show as `Up`. You can
 also check:
 
 ```bash

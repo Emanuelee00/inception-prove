@@ -1,6 +1,7 @@
 services:
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     env_file:
       - .env
@@ -12,6 +13,7 @@ services:
 
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     env_file:
       - .env
@@ -25,6 +27,7 @@ services:
 
   nginx:
     build: ./requirements/nginx
+    image: nginx
     container_name: nginx
     env_file:
       - .env
@@ -35,13 +38,25 @@ services:
     depends_on:
       - wordpress
       - react
+      - pacman
     networks:
       - inception
     restart: always
 
   react:
     build: ./requirements/react
+    image: react
     container_name: react
+    networks:
+      - inception
+    restart: always
+
+  pacman:
+    build: ./requirements/pacman
+    image: pacman
+    container_name: pacman
+    volumes:
+      - pacman_data:/root/.local/share/pacman_game
     networks:
       - inception
     restart: always
@@ -58,6 +73,12 @@ volumes:
     driver_opts:
       type: none
       device: ${HOME}/data/wordpress
+      o: bind
+  pacman_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOME}/data/pacman
       o: bind
 
 networks:

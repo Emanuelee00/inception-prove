@@ -1,11 +1,12 @@
 WP_DIR		= $(HOME)/data/wordpress
 DB_DIR		= $(HOME)/data/mariadb
+PACMAN_DIR	= $(HOME)/data/pacman
 COMPOSE		= docker compose -f srcs/docker-compose.yml
 
 all: up
 
 init:
-	mkdir -p $(WP_DIR) $(DB_DIR)
+	mkdir -p $(WP_DIR) $(DB_DIR) $(PACMAN_DIR)
 
 up: init
 	$(COMPOSE) up --build -d
@@ -22,7 +23,7 @@ clean:
 
 fclean:
 	$(COMPOSE) down -v
-	sudo rm -rf $(WP_DIR)/* $(DB_DIR)/*
+	sudo rm -rf $(WP_DIR)/* $(DB_DIR)/* $(PACMAN_DIR)/*
 	docker system prune -af
 
 re: fclean all
