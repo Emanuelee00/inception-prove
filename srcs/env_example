@@ -1,12 +1,12 @@
-DOMAIN_NAME=login.42.fr
+DOMAIN_NAME=eielmini.42.fr
 
 WP_DATABASE=wordpress
 WP_DB_HOST=mariadb
 WP_USER=wp_user
-WP_PASSWORD=change_me
+WP_PASSWORD=123
 
-WP_ADMIN=admin_login
-WP_ADMIN_EMAIL=admin@example.com
-WP_ADMIN_PASSWORD=change_me
+WP_ADMIN=eowner
+WP_ADMIN_EMAIL=emanuele.ielmini@gmail.com
+WP_ADMIN_PASSWORD=1234
 
-WP_USER_PASSWORD=change_me
+WP_USER_PASSWORD=12345
